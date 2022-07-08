@@ -8,18 +8,29 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all --require-approval=never",
+    "destroy": "cdk destroy --all"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.101",
     "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
+    "@types/node": "^18.0.0",
+    "aws-cdk": "2.3.0",
+    "aws-lambda": "^1.0.7",
+    "esbuild": "^0.14.48",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
-    "aws-cdk": "2.3.0",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "4.5.5"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.121.0",
+    "@aws-sdk/client-dynamodb": "^3.121.0",
+    "@aws-sdk/client-kinesis": "^3.121.0",
+    "@aws-sdk/lib-dynamodb": "^3.121.0",
+    "@aws-sdk/signature-v4-crt": "^3.118.0",
     "aws-cdk-lib": "2.3.0",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.16"
