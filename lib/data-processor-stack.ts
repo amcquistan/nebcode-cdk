@@ -9,14 +9,14 @@ import * as logs from "aws-cdk-lib/aws-logs";
 
 import * as path from "path";
 
-export interface StreamProcessorProps extends StackProps {
+export interface DataProcessorProps extends StackProps {
   readonly inputStream: kinesis.IStream;
 }
 
-export class StreamProcessorStack extends Stack {
+export class DataProcessorStack extends Stack {
   readonly revenueStream: kinesis.IStream;
 
-  constructor(scope: Construct, id: string, props: StreamProcessorProps) {
+  constructor(scope: Construct, id: string, props: DataProcessorProps) {
     super(scope, id, props);
 
     this.revenueStream = new kinesis.Stream(this, "RevenueStream");
