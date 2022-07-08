@@ -21,15 +21,15 @@ const dataProcessorStack = new DataProcessorStack(app, "data-processor-stack", {
   inputStream: dataGenStack.kinesisStream
 });
 
-// const websocketApiStack = new WebsocketApiStack(app, "websocket-revenue-api", {
-//   env,
-//   stackName: "websocket-revenue-api",
-//   revenueStream: dataProcessorStack.revenueStream,
-//   stageName: "v1"
-// });
+const websocketApiStack = new WebsocketApiStack(app, "websocket-revenue-api", {
+  env,
+  stackName: "websocket-revenue-api",
+  revenueStream: dataProcessorStack.revenueStream,
+  stageName: "v1"
+});
 
-// new DashboardStack(app, "dashboard-stack", {
-//   env,
-//   stackName: "dashboard-stack",
-//   websocketApiUrl: websocketApiStack.websocketApiUrl
-// });
+new DashboardStack(app, "dashboard-stack", {
+  env,
+  stackName: "dashboard-stack",
+  websocketApiUrl: websocketApiStack.websocketApiUrl
+});
