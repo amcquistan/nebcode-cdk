@@ -62,7 +62,8 @@ yarn synth
 yarn deploy
 ```
 
- * `yarn build`   compile typescript to js
- * `yarn deploy`      deploy this stack to your default AWS account/region
- * `yarn cdk diff`        compare deployed stack with current state
- * `yarn synth`       emits the synthesized CloudFormation template
+5) Destroy the project
+
+```
+yarn destroy
+```
