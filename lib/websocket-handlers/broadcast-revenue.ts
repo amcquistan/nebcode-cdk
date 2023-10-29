@@ -38,13 +38,19 @@ export async function handler(event: KinesisStreamEvent) {
 
     // broadcast new revenue to each connection
     for (let connection of connections!) {
-      const response = await apiClient.send(
-        new PostToConnectionCommand({
-          Data: Buffer.from(record.kinesis.data, "base64"),
-          ConnectionId: connection.connectionId,
-        })
-      );
-      console.log(`postToConnection response ${JSON.stringify(response)}`);
+      try {
+        const response = await apiClient.send(
+          new PostToConnectionCommand({
+            Data: Buffer.from(record.kinesis.data, "base64"),
+            ConnectionId: connection.connectionId,
+          })
+        );
+        console.log(`postToConnection response ${JSON.stringify(response)}`);
+      } catch(err) {
+        console.error(err)
+      }
     }
   }
+
+  return { statusCode: 200, body: 'Data sent.' };
 }

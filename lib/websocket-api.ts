@@ -2,7 +2,7 @@
 import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { CfnApi, CfnIntegration, CfnRoute, CfnStage, CfnDeployment } from "aws-cdk-lib/aws-apigatewayv2";
-import { ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 import { Aws, CfnOutput, Stack } from 'aws-cdk-lib';
 
@@ -21,8 +21,8 @@ export class WebsocketApi extends Construct {
   readonly props: WebsocketApiProps;
   readonly api: CfnApi;
   readonly deployment: CfnDeployment;
+  readonly stage: CfnStage;
   
-
   constructor(parent: Stack, name: string, props: WebsocketApiProps) {
     super(parent, name);
     this.props = props;
@@ -37,7 +37,7 @@ export class WebsocketApi extends Construct {
       apiId: this.api.ref
     });
 
-    new CfnStage(this, "WebsocketStage", {
+    this.stage = new CfnStage(this, "WebsocketStage", {
       stageName: props.stageName,
       apiId: this.api.ref,
       deploymentId: this.deployment.ref
@@ -60,18 +60,21 @@ export class WebsocketApi extends Construct {
     fn.grantInvoke(new ServicePrincipal('apigateway.amazonaws.com', {
       conditions: {
         "ArnLike": {
-          "aws:SourceArn": `arn:aws:execute-api:${Aws.REGION}:${Aws.ACCOUNT_ID}:${this.api.ref}/*/*/*`
+          "aws:SourceArn": `arn:aws:execute-api:${Aws.REGION}:${Aws.ACCOUNT_ID}:${this.api.ref}/*`
         }
       }
     }));
 
-   this.deployment.addDependsOn(new CfnRoute(this, `${operationName}Route`, {
+    fn.role?.grantAssumeRole(new ServicePrincipal("apigateway.amazonaws.com"))
+
+    const route = new CfnRoute(this, `${operationName}Route`, {
       apiId: this.api.ref,
       routeKey: routeKey,
       apiKeyRequired: apiKeyRequired,
       authorizationType: authorizationType || "NONE",
       operationName: operationName,
       target: `integrations/${integration.ref}`
-    }));
+    });
+    this.deployment.addDependency(route);
   }
 }

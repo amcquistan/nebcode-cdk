@@ -25,6 +25,7 @@ export class DataProcessorStack extends Stack {
       bundling: { minify: true, sourceMap: true, target: "es2019" },
       entry: path.resolve(__dirname, "streamprocessor", "handler.ts"),
       handler: "handler",
+      runtime: lambda.Runtime.NODEJS_18_X,
       logRetention: logs.RetentionDays.THREE_DAYS,
       environment: {
         ["OUTPUT_STREAM"]: this.revenueStream.streamName

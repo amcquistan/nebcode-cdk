@@ -1,10 +1,10 @@
-import { Stack, StackProps, Aws, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, Aws, CfnOutput, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import { Table, AttributeType, StreamViewType } from "aws-cdk-lib/aws-dynamodb";
 import { IStream } from "aws-cdk-lib/aws-kinesis";
 import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
-import { StartingPosition } from "aws-cdk-lib/aws-lambda";
+import { StartingPosition, Runtime } from "aws-cdk-lib/aws-lambda";
 import { KinesisEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -34,7 +34,9 @@ export class WebsocketApiStack extends Stack {
     const commonFnProps: NodejsFunctionProps = {
       bundling: { minify: true, sourceMap: true, target: 'es2019' },
       handler: 'handler',
-      logRetention: RetentionDays.THREE_DAYS
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.THREE_DAYS,
+      timeout: Duration.seconds(30),
     };
 
     const connectFn = new NodejsFunction(this, 'ConnectFn', {
@@ -42,7 +44,7 @@ export class WebsocketApiStack extends Stack {
       entry: path.resolve(__dirname, "websocket-handlers", "connect.ts"),
       environment: {
         CONNECTIONS_TBL: connectionsTbl.tableName
-      }
+      },
     });
 
     const disconnectFn = new NodejsFunction(this, 'DisconnectFn', {
@@ -77,7 +79,7 @@ export class WebsocketApiStack extends Stack {
     }));
     broadcastRevenueFn.addToRolePolicy(new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: [ "execute-api:ManageConnections" ],
+      actions: [ "execute-api:ManageConnections", "execute-api:Invoke" ],
       resources: [ `arn:aws:execute-api:${Aws.REGION}:${Aws.ACCOUNT_ID}:${websocketApi.api.ref}/*` ]
     }));
 

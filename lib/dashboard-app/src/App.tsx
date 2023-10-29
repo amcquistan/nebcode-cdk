@@ -96,6 +96,7 @@ function App() {
   const socket = new WebSocket(apiUrl!);
   socket.addEventListener("message", (evt) => {
     const update: AggregateRevenue = JSON.parse(evt.data);
+    console.log(`Received update ${JSON.stringify(update)}`)
     const time = new Date(update?.windowEnd!).toLocaleTimeString();
     if (!chartState.labels.includes(time)) {
       chartState.labels.push(time);

@@ -8,6 +8,7 @@ const client = new KinesisClient({ region: process.env.AWS_REGION });
 
 
 export async function handler(event: WindowedKinesisEvent): Promise<WindowedState> {
+  console.log(`event ${JSON.stringify(event)}`)
   let state: AggregateRevenue = Object.keys(event.state!).length !== 0 ? { ...event.state! } : {
     windowStart: event.window.start,
     windowEnd: event.window.end,
@@ -21,22 +22,23 @@ export async function handler(event: WindowedKinesisEvent): Promise<WindowedStat
       PartitionKey: state.windowEnd,
       StreamName: process.env.OUTPUT_STREAM
     }));
+    console.log(`returning final state ${JSON.stringify({ state })}`)
     return { state };
   }
 
   for (const record of event.Records) {
-    const evtCustomer: CustomerRevenue = JSON.parse(
+    const customerEvent: CustomerRevenue = JSON.parse(
       Buffer.from(record.kinesis.data, 'base64').toString('utf8')
     );
 
-    let i = state.customerRevenue.findIndex(x => x.name === evtCustomer.customer);
+    let i = state.customerRevenue.findIndex(x => x.name === customerEvent.customer);
     let customer: CustomerAggregateRevenue;
     if (i === -1) {
-      customer = { name: evtCustomer.customer, revenue: evtCustomer.revenue };
+      customer = { name: customerEvent.customer, revenue: customerEvent.revenue };
       state.customerRevenue.push(customer);
     } else {
       customer = state.customerRevenue[i];
-      state.customerRevenue[i] = { ...customer, revenue: customer.revenue + evtCustomer.revenue };
+      state.customerRevenue[i] = { ...customer, revenue: customer.revenue + customerEvent.revenue };
     }
 
     state = { ...state, totalRevenue: state.totalRevenue + customer.revenue };

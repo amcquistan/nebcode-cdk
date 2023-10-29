@@ -17,7 +17,18 @@ export class DashboardStack extends Stack  {
     const websiteBucket = new s3.Bucket(this, "WebsiteBucket", {
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "index.html",
-      publicReadAccess: true
+      publicReadAccess: true,
+
+      // very ugly fix due to changes in S3 permissioning now required to
+      // achieve the same as public read
+      // see: https://github.com/aws/aws-cdk/issues/25983
+      accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false
+      }
     });
 
     new s3_deploy.BucketDeployment(this, "BucketDeployer", {
